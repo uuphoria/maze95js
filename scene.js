@@ -2,7 +2,7 @@ import * as THREE from './lib/three.module.js'
 import EventEmitter from 'event-emitter-es6'
 
 //Misc imports
-import { mixer, playerGeo, quickLoadTexture, updatePlayerSprites,updatePlayerSpeeds,clients_initialized } from "./maze95.js"
+import { mixer, playerGeo, quickLoadTexture, updatePlayerSprites,updatePlayerSpeeds,clients_initialized, skinPref } from "./maze95.js"
 import { SelectedLVL } from "./levels/level_defines.js"
 import "./lib/settings.js"
 import { faceObj, startObj } from './lib/object_defines.js'
@@ -26,7 +26,7 @@ class Scene extends EventEmitter {
     this.camera = new THREE.PerspectiveCamera(60, this.width / this.height, 0.1, 1000)
 
     //Player object
-    this.player = new THREE.Mesh(playerGeo(), quickLoadTexture("xenle_sprites/0001"))
+    this.player = new THREE.Mesh(playerGeo(), quickLoadTexture(`${skinPref.toLowerCase()}/0001`))
     this.scene.add(this.player)
     this.player.position.y = -7//10
     this.player.position.z = -23
@@ -77,16 +77,6 @@ class Scene extends EventEmitter {
     this.ceiling.position.y = 14
 
     this.delta = this.clock.getDelta()
-  }
-
-  drawUsers(positions, id){
-    for(let i = 0; i < Object.keys(positions).length; i++){
-      if(Object.keys(positions)[i] != id){
-        this.users[i].position.set(positions[Object.keys(positions)[i]].position[0],
-                                   positions[Object.keys(positions)[i]].position[1],
-                                   positions[Object.keys(positions)[i]].position[2]);
-      }
-    }
   }
 
   update(){

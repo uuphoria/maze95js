@@ -8,7 +8,7 @@ import "./lib/object_defines.js"
 import { faceObj, startObj } from './lib/object_defines.js'
 
 if(window.location.href.includes("localhost" || "127.0.0.1")) {
-  document.title = "Maze 95 JS - LOCAL"
+  document.title = "Maze 95 JS - Local"
 }
 
 //Path to the server
@@ -17,6 +17,23 @@ const webSocketServerPath = "http://localhost:3000"
 //Misc variables
 window.spooky
 window.spooky = false
+
+//export const username = prompt("Type your display name below")
+const skinPrompt = prompt("Type your character, everyone will be this character on your client.\n\nXenle\nFlake")
+var skinPref
+export { skinPref }
+switch (skinPrompt.toLowerCase()) {
+  case "xenle":
+    console.log("Xenle selected!")
+    skinPref = "xenle"
+    break
+  case "flake":
+    console.log("Flake selected!")
+    skinPref = "flake"
+    break
+  default:
+    throw(`Unknown character ${skinPrompt}!`)
+}
 
 let gameStarted = false
 window.spd = 0
@@ -40,18 +57,17 @@ export const quickLoadTexture = (texturePath, texOpacity = 1.0) => { /* Helps ke
 }
 
 export const playerRotSprites = { /* You can probably guess what this is for. */
-	"_0" : quickLoadTexture("xenle_sprites/0001"),
-	"_1" : quickLoadTexture("xenle_sprites/0002"),
-	"_2" : quickLoadTexture("xenle_sprites/0003"),
-	"_3" : quickLoadTexture("xenle_sprites/0004"),
-	"_4" : quickLoadTexture("xenle_sprites/0005"),
-	"_5" : quickLoadTexture("xenle_sprites/0006"),
-	"_6" : quickLoadTexture("xenle_sprites/0007"),
-	"_7" : quickLoadTexture("xenle_sprites/0008")	
+	"_0" : quickLoadTexture(`${skinPref.toLowerCase()}/0001`),
+	"_1" : quickLoadTexture(`${skinPref.toLowerCase()}/0002`),
+	"_2" : quickLoadTexture(`${skinPref.toLowerCase()}/0003`),
+	"_3" : quickLoadTexture(`${skinPref.toLowerCase()}/0004`),
+	"_4" : quickLoadTexture(`${skinPref.toLowerCase()}/0005`),
+	"_5" : quickLoadTexture(`${skinPref.toLowerCase()}/0006`),
+	"_6" : quickLoadTexture(`${skinPref.toLowerCase()}/0007`),
+	"_7" : quickLoadTexture(`${skinPref.toLowerCase()}/0008`)	
 }
 
 // Doom-like player sprite calc stuff
-
 export const raw_looppoint = 6.30
 export const sprite_offset = 4
 /*This is used to remap raw angles to a workable value.*/
@@ -93,7 +109,7 @@ wallTex.magFilter = THREE.NearestFilter
 const wallMat = new THREE.MeshBasicMaterial({map: wallTex})
 
 //Make connection with server
-const socket = io(webSocketServerPath)
+export const socket = io(webSocketServerPath)
 
 //The game scene
 export const gameScene = new Scene()
@@ -195,13 +211,12 @@ gameScene.on('userMoved', ()=>{
 
 //On connection server sends the client their ID
 socket.on('introduction', (_id, _clientNum, _ids)=>{
-
   for(let i = 0; i < _ids.length; i++){
     if(_ids[i] != _id){
       clients[_ids[i]] = {
         mesh: new THREE.Mesh(
           playerGeo(),
-          quickLoadTexture("xenle_sprites/0001")
+          quickLoadTexture(`${skinPref.toLowerCase()}/0001`)
         ),
 		rot: 0.0
       }
@@ -235,7 +250,7 @@ socket.on('newUserConnected', (clientCount, _id, _ids)=>{
     clients[_id] = {
       mesh: new THREE.Mesh(
           playerGeo(),
-          quickLoadTexture("xenle_sprites/0001")
+          quickLoadTexture(`${skinPref.toLowerCase()}/0001`)
       ),
 	  rot: 0.0
     }
