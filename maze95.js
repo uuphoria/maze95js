@@ -18,22 +18,28 @@ const webSocketServerPath = "http://localhost:3000"
 window.spooky
 window.spooky = false
 
-//export const username = prompt("Type your display name below")
-const skinPrompt = prompt("Type your character, everyone will be this character on your client.\n\nXenle\nFlake")
 var skinPref
 export { skinPref }
-switch (skinPrompt.toLowerCase()) {
-  case "xenle":
-    console.log("Xenle selected!")
-    skinPref = "xenle"
-    break
-  case "flake":
-    console.log("Flake selected!")
-    skinPref = "flake"
-    break
-  default:
-    throw(`Unknown character ${skinPrompt}!`)
+
+//export const username = prompt("Type your display name below")
+function askForSkin() {
+  let skinPrompt = prompt("Type your character, everyone will be this character on your client.\n\nXenle\nFlake")
+
+  switch (skinPrompt.toLowerCase()) {
+    case "xenle":
+      console.log("Xenle selected!")
+      skinPref = "flake"
+      break
+    case "flake":
+      console.log("Flake selected!")
+      skinPref = "xenle" //Reversing values because you are in first person and cannot see yourself, in theory this is lazy player 'model' networking for 2 players as a placeholder.
+      break
+    default:
+      alert(`Unknown character "${skinPrompt}!`)
+      askForSkin()
+  }
 }
+askForSkin()
 
 let gameStarted = false
 window.spd = 0
@@ -56,7 +62,7 @@ export const quickLoadTexture = (texturePath, texOpacity = 1.0) => { /* Helps ke
 	return new THREE.MeshStandardMaterial({map: texture_loaded, transparent: true, opacity: texOpacity})
 }
 
-export const playerRotSprites = { /* You can probably guess what this is for. */
+export const playerRotSprites = { //Sprite list
 	"_0" : quickLoadTexture(`${skinPref.toLowerCase()}/0001`),
 	"_1" : quickLoadTexture(`${skinPref.toLowerCase()}/0002`),
 	"_2" : quickLoadTexture(`${skinPref.toLowerCase()}/0003`),
@@ -137,16 +143,11 @@ function fog(color, near, far) {
 function unfog() {
   gameScene.scene.fog = null
 }
-if(window.spooky && !gameStarted) {
-  console.warn("Cannot enable spooky mode yet, map not loaded.") //Any help on how not to newly warn every single framew would be appreciated
-}
-if(window.spooky && gameStarted) {
-  fog(0x0000, 5, 50)
-  amb.color.setHex(0x707070)
-}
-else {
+
+/*if(!window.spooky) {
   unfog()
-}
+}*/
+//gameScene.scene.fog = new THREE.Fog(0x0000, 5, 50)
 
 //Music on title screen
 let titleMus = new Audio("./audio/mus_bg.mp3")
@@ -218,7 +219,7 @@ socket.on('introduction', (_id, _clientNum, _ids)=>{
           playerGeo(),
           quickLoadTexture(`${skinPref.toLowerCase()}/0001`)
         ),
-		rot: 0.0
+		    rot: 0.0
       }
 
       //Add initial users to the scene
@@ -226,7 +227,7 @@ socket.on('introduction', (_id, _clientNum, _ids)=>{
     }
   }
 
-  console.log(clients)
+  //console.log(clients)
 
   id = _id
   console.log(`Client ID is ${id}`)
@@ -252,7 +253,7 @@ socket.on('newUserConnected', (clientCount, _id, _ids)=>{
           playerGeo(),
           quickLoadTexture(`${skinPref.toLowerCase()}/0001`)
       ),
-	  rot: 0.0
+	    rot: 0.0
     }
 
     //Add initial users to the scene
@@ -273,6 +274,14 @@ socket.on('userDisconnected', (clientCount, _id, _ids)=>{
     gameScene.scene.remove(clients[_id].mesh)
     delete clients[_id]
   }
+})
+
+socket.on('selfDisconnect', (_id) =>{
+  console.log(`Player limit is in place, disconnected ID ${_id}`)
+  socket.disconnect()
+  document.getElementById("numberonline").style.color = "red"
+  document.getElementById("numberonline").innerHTML = "Player limit in place, cannot join game."
+  document.getElementById("classicstart").disabled = true
 })
 
 socket.on('connect', ()=>{})
@@ -343,6 +352,6 @@ function updatePlayerSpeeds (player) {
 	if (playerVel[0] != 0.0 ||
 	playerVel[1] != 0.0 ||
 	playerVel[2] != 0.0) {socket.emit('move', {"pos":[player.position.x, player.position.y, player.position.z],"rot":[player.rotation.x, remapAngle(player.rotation.y), player.rotation.z]})}
-	document.title = `Maze 95 JS - ${Math.round(playerVel[0])}, ${Math.round(playerVel[1])}`
+	//document.title = `Maze 95 JS - ${Math.round(playerVel[0])}, ${Math.round(playerVel[1])}`
 }
 export {updatePlayerSprites, clients_initialized, updatePlayerSpeeds}

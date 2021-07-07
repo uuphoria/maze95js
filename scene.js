@@ -81,7 +81,7 @@ class Scene extends EventEmitter {
 
   update(){
     requestAnimationFrame(() => this.update())
-	if (clients_initialized()) updatePlayerSpeeds(this.player)
+	  if(clients_initialized()) updatePlayerSpeeds(this.player)
 		
     this.camera.position.x = this.player.position.x
     //this.camera.position.y = this.player.position.y
@@ -92,11 +92,14 @@ class Scene extends EventEmitter {
     startObj.rotation.y = this.player.rotation.y
     faceObj.rotation.y = this.player.rotation.y
 	
-	if (clients_initialized()) updatePlayerSprites()
+	  if(clients_initialized()) updatePlayerSprites()
 	
     if(mixer) mixer.update(this.delta)
 
     this.render()
+
+    if(window.spooky) { this.scene.fog = new THREE.Fog(0x0000, 10, 100) }
+    else { this.scene.fog = false }
   }
 
   render() {
